@@ -1,0 +1,157 @@
+---
+title: "STA_445_Assignment_6"
+author: "Sophia Kubisiak"
+date: "03/28/24"
+output: pdf_document
+---
+
+```{r warning=FALSE , message=FALSE}
+library(tidyverse)
+library(lubridate)
+```
+
+## Problem 1
+Convert the following to date or date/time objects.
+
+a. September 13, 2010.
+```{r}
+a <- "September 13, 2010"
+mdy(a)
+```
+
+b. Sept 13, 2010.
+```{r}
+b <- "Sept 13, 2010"
+mdy(b)
+```
+
+c. Sep 13, 2010.
+```{r}
+c <- "Sep 13, 2010"
+mdy(c)
+```
+
+d. S 13, 2010. Comment on the month abbreviation needs.
+```{r}
+d <- "S 13, 2010"
+mdy(d)
+```
+The abbreviations that work are september and sep. Sept and S do not work. 
+
+e. 07-Dec-1941.
+```{r}
+e <- "07-Dec-1941"
+dmy(e)
+```
+
+f. 1-5-1998. Comment on why you might be wrong.
+```{r}
+mdy("1-5-1998")
+```
+The date could be 'day month year' or 'month day year', it is not clear.   
+
+g. 21-5-1998. Comment on why you know you are correct.
+```{r}
+dmy("21-5-1998")
+```
+The date must be read as 'day month year' , because there are not 21 months. 
+
+h. 2020-May-5 10:30 am
+```{r}
+ymd_hm("2020-May-5, 10:30 AM")
+```
+
+i. 2020-May-5 10:30 am PDT (ex Seattle)
+```{r}
+ymd_hm("2020-May-5 10:30 AM" , tz="US/Pacific")
+```
+
+j. 2020-May-5 10:30 am AST (ex Puerto Rico)
+```{r}
+ymd_hm("2020-May-5 10:30 am" , tz = "America/Puerto_Rico")
+```
+
+
+### Problem 2
+
+Using just your date of birth (ex Sep 7, 1998) and today's date calculate the following:
+```{r}
+bday <- "June 21, 2002"
+birthday <- mdy(bday)
+```
+
+a. Calculate the date of your 64th birthday.
+```{r}
+birthday + years(64)
+```
+
+b. Calculate your current age (in years). 
+```{r}
+as.duration(birthday %--% now())
+```
+
+c. Using your result in part (b), calculate the date of your next birthday.
+```{r}
+(nextbday <- birthday + years(22))
+```
+
+d. The number of _days_ until your next birthday.
+```{r}
+as.period(nextbday %--% now(), unit="days")
+```
+
+e. The number of _months_ and _days_ until your next birthday.
+```{r}
+as.period(nextbday %--% now(), unit="months")
+```
+
+
+## Problem 3
+
+Suppose you have arranged for a phone call to be at 3 pm on May 8, 2015 at Arizona time. However, the recipient will be in Auckland, NZ. What time will it be there? 
+```{r}
+phonecall <- (mdy_h("May 8, 2015 3PM" , tz="US/Arizona"))
+(Auckland <- with_tz(phonecall , tz = "NZ"))
+```
+
+## Problem 4
+
+It turns out there is some interesting periodicity regarding the number of births on particular days of the year.
+
+a. Using the `mosaicData` package, load the data set `Births78` which records the number of children born on each day in the United States in 1978. Because this problem is intended to show how to calculate the information using the `date`, remove all the columns *except* `date` and `births`. 
+
+```{r}
+data(Births78, package="mosaicData")
+
+births <- Births78 %>%
+  select(c("date", "births"))
+```
+
+b. Graph the number of `births` vs the `date` with date on the x-axis. What stands out to you? Why do you think we have this trend?
+
+  There are a lot more births between July and October. Maybe this has to do with trends of pregnancy, and possibly marriage dates could have a small impact as well. Also, maybe the amount of planned pregnancies all wanted to give birth in later summer months and early fall in 1978.    
+```{r}
+ggplot( data=births, aes(x=date, y=births) ) +  
+    geom_point(  ) 
+```
+c. To test your assumption, we need to figure out the what day of the week each observation is. Use `dplyr::mutate` to add a new column named `dow` that is the day of the week (Monday, Tuesday, etc). This calculation will involve some function in the `lubridate` package and the `date` column.
+```{r}
+births <- births %>%
+  mutate(dow = wday(date, label=TRUE))
+```
+
+d. Plot the data with the point color being determined by the day of the week variable.
+```{r}
+ggplot( data=births, aes(x=date, y=births) ) +  
+    geom_point( aes(color=dow) ) 
+```
+
+
+
+
+
+
+
+
+
+
